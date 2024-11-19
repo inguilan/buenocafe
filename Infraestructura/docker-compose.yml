@@ -10,7 +10,7 @@ services:
       - users_api
     networks:
       - dev_network
-  
+
   users_api:
     build:
       context: ./APIS
@@ -31,29 +31,17 @@ services:
       - dev_network
 
   db_dev:
-    build:
-      context: .
-      dockerfile: Dockerfile.postgres_audit
+    image: postgres:17 # Usar una versión estable de PostgreSQL en lugar de un Dockerfile personalizado
     container_name: users_db_dev
-    deploy:
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 4GB
-        reservations:
-          cpus: "0.1"
-          memory: 1GB
-    ports:
-      - "5432:5432"  
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345
-      POSTGRES_DB: my_database
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
     volumes:
       - ./users_data_dev:/var/lib/postgresql/data
       - ./pg_logs:/var/log/postgresql
-      - ./postgresql_configs/postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./postgresql_configs/pg_hba.conf:/etc/postgresql/pg_hba.conf
     networks:
       - dev_network
 
@@ -61,7 +49,7 @@ services:
     image: dpage/pgadmin4
     container_name: dev_pgadmin
     ports:
-      - 8888:80 
+      - 8888:80
     environment:
       PGADMIN_DEFAULT_EMAIL: cafe@admin.com
       PGADMIN_DEFAULT_PASSWORD: 12345
@@ -74,4 +62,3 @@ networks:
 
 volumes:
   cafe_db_data:
-
