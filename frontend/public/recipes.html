@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Recetas - Cafe Arandia</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Recetas</h1>
+    <button class="cta-button" id="open-modal">Añadir Receta</button>
+
+    <h2>Lista de Recetas</h2>
+    <ul id="recipe-list"></ul>
+  </div>
+
+  <!-- Modal para añadir receta -->
+  <div class="modal hidden" id="recipe-modal">
+    <div class="modal-content">
+      <h2>Nueva Receta</h2>
+      <form id="recipe-form">
+        <label for="product-select">Selecciona un producto:</label>
+        <select id="product-select" required></select>
+
+        <label for="recipe-title">Título de la Receta:</label>
+        <input type="text" id="recipe-title" required>
+
+        <label for="recipe-instructions">Instrucciones:</label>
+        <textarea id="recipe-instructions" required></textarea>
+
+        <button type="submit">Guardar Receta</button>
+      </form>
+      <button class="cta-button" id="close-modal">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('recipe-modal');
+    const openModalButton = document.getElementById('open-modal');
+    const closeModalButton = document.getElementById('close-modal');
+    const recipeForm = document.getElementById('recipe-form');
+    const recipeList = document.getElementById('recipe-list');
+
+    // Mostrar el modal
+    openModalButton.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+    });
+
+    // Cerrar el modal
+    closeModalButton.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+
+    // Cargar productos para el select
+    async function loadProductsForSelect() {
+      const response = await fetch('/products');
+      const products = await response.json();
+      const productSelect = document.getElementById('product-select');
+      productSelect.innerHTML = products
+        .map((p) => `<option value="${p.id}">${p.nombre}</option>`)
+        .join('');
+    }
+
+    // Cargar y mostrar recetas
+    async function loadRecipes() {
+      const response = await fetch('/recipes');
+      const recipes = await response.json();
+      recipeList.innerHTML = recipes
+        .map(
+          (r) =>
+            `<li>
+              <strong>Receta:</strong> ${r.titulo}<br>
+              <strong>Producto:</strong> ${r.productoNombre || 'Desconocido'}<br>
+              <strong>Instrucciones:</strong> ${r.instrucciones}
+            </li>`
+        )
+        .join('');
+    }
+
+    // Guardar receta
+    recipeForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const productId = document.getElementById('product-select').value;
+      const titulo = document.getElementById('recipe-title').value;
+      const instrucciones = document.getElementById('recipe-instructions').value;
+
+      const response = await fetch('/recipes/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, titulo, instrucciones }),
+      });
+
+      const result = await response.json();
+      alert(result.message || 'Receta añadida');
+      modal.classList.add('hidden');
+      loadRecipes();
+    });
+
+    // Inicializar
+    loadProductsForSelect();
+    loadRecipes();
+  </script>
+</body>
+</html>

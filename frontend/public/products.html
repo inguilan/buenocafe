@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Productos - Cafe Arandia</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Productos</h1>
+    <button id="add-product-btn" class="cta-button">Añadir Producto</button>
+    <ul id="product-list"></ul>
+  </div>
+
+  <!-- Modal para añadir producto -->
+  <div id="product-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Añadir Producto</h2>
+      <form id="product-form">
+        <label for="product-name">Nombre del Producto:</label>
+        <input type="text" id="product-name" required>
+
+        <label for="product-price">Precio:</label>
+        <input type="number" id="product-price" required>
+
+        <label for="product-description">Descripción:</label>
+        <textarea id="product-description" required></textarea>
+
+        <button type="submit">Guardar Producto</button>
+        <button type="button" class="close-modal">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Funciones para manejar el modal
+    const modal = document.getElementById('product-modal');
+    const openModalBtn = document.getElementById('add-product-btn');
+    const closeModalBtns = document.querySelectorAll('.close-modal');
+
+    openModalBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+    closeModalBtns.forEach(btn => btn.addEventListener('click', () => modal.classList.add('hidden')));
+
+    // Función para añadir productos
+    const productForm = document.getElementById('product-form');
+    productForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('product-name').value;
+      const price = parseFloat(document.getElementById('product-price').value);
+      const description = document.getElementById('product-description').value;
+
+      const response = await fetch('/products/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: name, precio: price, descripcion: description }),
+      });
+
+      const result = await response.json();
+      alert(result.message || 'Producto añadido');
+      modal.classList.add('hidden');
+      loadProducts();
+    });
+
+    async function loadProducts() {
+      const response = await fetch('/products');
+      const products = await response.json();
+      const productList = document.getElementById('product-list');
+      productList.innerHTML = products
+        .map(
+          (p) =>
+            `<li>
+              <strong>${p.nombre}</strong>: $${p.precio}
+              <p>${p.descripcion}</p>
+            </li>`
+        )
+        .join('');
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>

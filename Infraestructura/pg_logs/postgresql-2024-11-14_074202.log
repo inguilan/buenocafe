@@ -1,0 +1,6 @@
+2024-11-14 07:42:02.521 GMT [1] LOG:  starting PostgreSQL 17.0 (Debian 17.0-1.pgdg120+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit
+2024-11-14 07:42:02.522 GMT [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2024-11-14 07:42:02.522 GMT [1] LOG:  listening on IPv6 address "::", port 5432
+2024-11-14 07:42:02.540 GMT [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2024-11-14 07:42:02.597 GMT [30] LOG:  database system was shut down at 2024-11-14 07:41:54 GMT
+2024-11-14 07:42:02.656 GMT [1] LOG:  database system is ready to accept connections

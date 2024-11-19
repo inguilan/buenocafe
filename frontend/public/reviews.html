@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Reseñas - Cafe Arandia</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Reseñas</h1>
+    <button id="add-review-btn" class="cta-button">Añadir Reseña</button>
+    <ul id="review-list"></ul>
+  </div>
+
+  <!-- Modal para añadir reseña -->
+  <div id="review-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Añadir Reseña</h2>
+      <form id="review-form">
+        <label for="product-select">Selecciona un producto:</label>
+        <select id="product-select" required></select>
+
+        <label for="review-rating">Calificación (1-5):</label>
+        <input type="number" id="review-rating" min="1" max="5" required>
+
+        <label for="review-comment">Comentario:</label>
+        <textarea id="review-comment" required></textarea>
+
+        <button type="submit">Guardar Reseña</button>
+        <button type="button" class="close-modal">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('review-modal');
+    const openModalBtn = document.getElementById('add-review-btn');
+    const closeModalBtns = document.querySelectorAll('.close-modal');
+
+    openModalBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+    closeModalBtns.forEach(btn => btn.addEventListener('click', () => modal.classList.add('hidden')));
+
+    async function loadProductsForSelect() {
+      const response = await fetch('/products');
+      const products = await response.json();
+      const productSelect = document.getElementById('product-select');
+      productSelect.innerHTML = products
+        .map((p) => `<option value="${p.id}">${p.nombre}</option>`)
+        .join('');
+    }
+
+    document.getElementById('review-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const productId = document.getElementById('product-select').value;
+      const calificacion = document.getElementById('review-rating').value;
+      const comentario = document.getElementById('review-comment').value;
+
+      const response = await fetch('/reviews/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, calificacion, comentario }),
+      });
+
+      const result = await response.json();
+      alert(result.message || 'Reseña añadida');
+      modal.classList.add('hidden');
+      loadReviews();
+    });
+
+    async function loadReviews() {
+      const response = await fetch('/reviews');
+      const reviews = await response.json();
+      const reviewList = document.getElementById('review-list');
+      reviewList.innerHTML = reviews
+        .map(
+          (r) =>
+            `<li>
+              Producto: ${r.productoNombre || 'Desconocido'}<br>
+              ${r.calificacion} estrellas - ${r.comentario}
+            </li>`
+        )
+        .join('');
+    }
+
+    loadProductsForSelect();
+    loadReviews();
+  </script>
+</body>
+</html>

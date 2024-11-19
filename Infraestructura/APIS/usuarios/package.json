@@ -1,0 +1,23 @@
+
+{
+  "name": "cafe-arandia-2.0",
+  "version": "1.0.0",
+  "description": "oagina venta de cafe",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "inguilan",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "express": "^4.21.1",
+    "proyecto-arandia": "file:"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4",
+    "prisma": "^5.22.0"
+  }
+}
