@@ -1,15 +1,10 @@
-/**
- * Christian Santacruz 
- * 
- * David Inguilan
- * 
- * Cafe Arandia 2.0
- * 
- * App.js
- */
-
 const express = require('express');
+const cors = require('cors'); // Habilitar CORS
 const app = express();
+
+// Middleware
+app.use(express.json());
+app.use(cors()); // Habilitar CORS para todas las solicitudes
 
 // Importar las rutas
 const userRoutes = require('./routes/userRoutes');
@@ -17,9 +12,6 @@ const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const recipeRoutes = require('./routes/recipeRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
-
-// Middleware para parsear JSON
-app.use(express.json()); 
 
 // Definir las rutas
 app.use('/users', userRoutes);
@@ -34,5 +26,5 @@ app.get('/', (req, res) => {
 });
 
 // Definir el puerto y arrancar el servidor
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

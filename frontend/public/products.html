@@ -34,7 +34,6 @@
   </div>
 
   <script>
-    // Funciones para manejar el modal
     const modal = document.getElementById('product-modal');
     const openModalBtn = document.getElementById('add-product-btn');
     const closeModalBtns = document.querySelectorAll('.close-modal');
@@ -42,7 +41,6 @@
     openModalBtn.addEventListener('click', () => modal.classList.remove('hidden'));
     closeModalBtns.forEach(btn => btn.addEventListener('click', () => modal.classList.add('hidden')));
 
-    // Función para añadir productos
     const productForm = document.getElementById('product-form');
     productForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -50,35 +48,43 @@
       const price = parseFloat(document.getElementById('product-price').value);
       const description = document.getElementById('product-description').value;
 
-      const response = await fetch('http://localhost:4000/products/add', { // Asegúrate de que el backend está en localhost:4000
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: name, precio: price, descripcion: description }),
-      });
+      try {
+        const response = await fetch('http://localhost:4000/products/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre: name, precio: price, descripcion: description }),
+        });
 
-      const result = await response.json();
-      alert(result.message || 'Producto añadido');
-      modal.classList.add('hidden');
-      loadProducts();
+        const result = await response.json();
+        alert(result.message || 'Producto añadido');
+        modal.classList.add('hidden');
+        loadProducts();
+      } catch (error) {
+        console.error('Error al añadir producto:', error);
+        alert('Error al añadir producto. Revisa la consola.');
+      }
     });
 
-    // Función para cargar productos
     async function loadProducts() {
-      const response = await fetch('http://localhost:4000/products');
-      const products = await response.json();
-      const productList = document.getElementById('product-list');
-      productList.innerHTML = products
-        .map(
-          (p) =>
-            `<li>
-              <strong>${p.nombre}</strong>: $${p.precio}
-              <p>${p.descripcion}</p>
-            </li>`
-        )
-        .join('');
+      try {
+        const response = await fetch('http://localhost:4000/products');
+        const products = await response.json();
+        const productList = document.getElementById('product-list');
+        productList.innerHTML = products
+          .map(
+            (p) =>
+              `<li>
+                <strong>${p.nombre}</strong>: $${p.precio}
+                <p>${p.descripcion}</p>
+              </li>`
+          )
+          .join('');
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+        alert('Error al cargar productos. Revisa la consola.');
+      }
     }
 
-    // Cargar productos al inicio
     loadProducts();
   </script>
 </body>
