@@ -1,20 +1,11 @@
-/**
- * Christian Santacruz 
- * 
- * David Inguilan
- * 
- * Cafe Arandia 2.0
- * 
- * Rutas Para Reseñas
- */
-
 const express = require('express');
-const { createReview, updateReview, deleteReview, getReviews } = require('../controllers/reviewController');
-const router = express.Router();
+const multer = require('multer');
+const { createReview, getReviews } = require('../controllers/reviewController');
 
-router.post('/create', createReview);
-router.put('/:id', updateReview);      
-router.delete('/:id', deleteReview);   
-router.get('/', getReviews);         
+const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
+
+router.post('/create', upload.single('imagen'), createReview);
+router.get('/', getReviews);
 
 module.exports = router;

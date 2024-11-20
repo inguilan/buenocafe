@@ -4,22 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-  <title>Recetas - Cafe Arandia</title>
+  <title>Recetas - Palmicafe Arandia</title>
 </head>
 <body>
   <div class="container">
     <h1>Recetas</h1>
-    <button class="cta-button" id="open-modal">Añadir Receta</button>
-
-    <h2>Lista de Recetas</h2>
+    <button id="open-modal" class="cta-button">Añadir Receta</button>
     <ul id="recipe-list"></ul>
   </div>
 
   <!-- Modal para añadir receta -->
-  <div class="modal hidden" id="recipe-modal">
+  <div id="recipe-modal" class="modal hidden">
     <div class="modal-content">
       <h2>Nueva Receta</h2>
-      <form id="recipe-form">
+      <form id="recipe-form" enctype="multipart/form-data">
         <label for="product-select">Selecciona un producto:</label>
         <select id="product-select" required></select>
 
@@ -29,75 +27,82 @@
         <label for="recipe-instructions">Instrucciones:</label>
         <textarea id="recipe-instructions" required></textarea>
 
+        <label for="recipe-image">Imagen:</label>
+        <input type="file" id="recipe-image" accept="image/*">
+
         <button type="submit">Guardar Receta</button>
+        <button type="button" class="close-modal">Cancelar</button>
       </form>
-      <button class="cta-button" id="close-modal">Cerrar</button>
     </div>
   </div>
 
   <script>
     const modal = document.getElementById('recipe-modal');
-    const openModalButton = document.getElementById('open-modal');
-    const closeModalButton = document.getElementById('close-modal');
-    const recipeForm = document.getElementById('recipe-form');
-    const recipeList = document.getElementById('recipe-list');
+    const openModalBtn = document.getElementById('open-modal');
+    const closeModalBtns = document.querySelectorAll('.close-modal');
 
-    // Mostrar el modal
-    openModalButton.addEventListener('click', () => {
-      modal.classList.remove('hidden');
-    });
+    openModalBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+    closeModalBtns.forEach(btn => btn.addEventListener('click', () => modal.classList.add('hidden')));
 
-    // Cerrar el modal
-    closeModalButton.addEventListener('click', () => {
-      modal.classList.add('hidden');
-    });
-
-    // Cargar productos para el select
     async function loadProductsForSelect() {
-      const response = await fetch('/products');
-      const products = await response.json();
-      const productSelect = document.getElementById('product-select');
-      productSelect.innerHTML = products
-        .map((p) => `<option value="${p.id}">${p.nombre}</option>`)
-        .join('');
+      try {
+        const response = await fetch('http://localhost:8000/products');
+        const products = await response.json();
+
+        const productSelect = document.getElementById('product-select');
+        productSelect.innerHTML = products.map(product => `
+          <option value="${product.id}">${product.nombre}</option>`).join('');
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+        alert('Error al cargar productos. Revisa la consola.');
+      }
     }
 
-    // Cargar y mostrar recetas
-    async function loadRecipes() {
-      const response = await fetch('/recipes');
-      const recipes = await response.json();
-      recipeList.innerHTML = recipes
-        .map(
-          (r) =>
-            `<li>
-              <strong>Receta:</strong> ${r.titulo}<br>
-              <strong>Producto:</strong> ${r.productoNombre || 'Desconocido'}<br>
-              <strong>Instrucciones:</strong> ${r.instrucciones}
-            </li>`
-        )
-        .join('');
-    }
-
-    // Guardar receta
+    const recipeForm = document.getElementById('recipe-form');
     recipeForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const productId = document.getElementById('product-select').value;
-      const titulo = document.getElementById('recipe-title').value;
-      const instrucciones = document.getElementById('recipe-instructions').value;
 
-      const response = await fetch('/recipes/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, titulo, instrucciones }),
-      });
+      const formData = new FormData();
+      formData.append('productId', document.getElementById('product-select').value);
+      formData.append('titulo', document.getElementById('recipe-title').value);
+      formData.append('instrucciones', document.getElementById('recipe-instructions').value);
+      formData.append('imagen', document.getElementById('recipe-image').files[0]);
 
-      const result = await response.json();
-      alert(result.message || 'Receta añadida');
-      modal.classList.add('hidden');
-      loadRecipes();
+      try {
+        const response = await fetch('http://localhost:8000/recipes/create', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+        alert(result.message || 'Receta añadida');
+        modal.classList.add('hidden');
+        loadRecipes();
+      } catch (error) {
+        console.error('Error al añadir receta:', error);
+        alert('Error al añadir receta. Revisa la consola.');
+      }
     });
 
-    // Inicializar
+    async function loadRecipes() {
+      try {
+        const response = await fetch('http://localhost:8000/recipes');
+        const recipes = await response.json();
+
+        const recipeList = document.getElementById('recipe-list');
+        recipeList.innerHTML = recipes.map(recipe => `
+          <li>
+            <img src="${recipe.imagen}" alt="${recipe.titulo}" width="100">
+            <strong>${recipe.titulo}</strong><br>
+            <p>${recipe.instrucciones}</p>
+            <p><em>Creado por: ${recipe.user.nombre}</em></p>
+          </li>`).join('');
+      } catch (error) {
+        console.error('Error al cargar recetas:', error);
+        alert('Error al cargar recetas. Revisa la consola.');
+      }
+    }
+
     loadProductsForSelect();
     loadRecipes();
   </script>

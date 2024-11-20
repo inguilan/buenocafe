@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-  <title>Cafe Arandia - Inicio</title>
+  <title>Palmicafe Arandia - Inicio</title>
 </head>
 <body>
   <header class="main-header">
     <div class="logo">
-      <h1>Cafe Arandia</h1>
+      <h1>Palmicafe Arandia</h1>
     </div>
     <nav>
-      <ul class="nav-links">
-        <li><a href="login.html">Iniciar Sesión</a></li>
-        <li><a href="register.html">Registrarse</a></li>
+      <ul class="nav-links" id="nav-links">
+        <li id="login-link"><a href="login.html">Iniciar Sesión</a></li>
+        <li id="register-link"><a href="register.html">Registrarse</a></li>
         <li><a href="products.html">Productos</a></li>
         <li><a href="recipes.html">Recetas</a></li>
         <li><a href="reviews.html">Reseñas</a></li>
@@ -23,31 +23,31 @@
     </nav>
   </header>
 
-  <main class="home-content">
-    <section class="hero">
-      <h2>Bienvenidos a Cafe Arandia</h2>
-      <p>Descubre la experiencia de disfrutar el mejor café y productos exclusivos.</p>
-      <a href="products.html" class="cta-button">Explorar Productos</a>
-    </section>
-
-    <section class="features">
-      <div class="feature-item">
-        <h3>Productos de Calidad</h3>
-        <p>Explora nuestra selección de café y artículos diseñados para los amantes del buen café.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Recetas Exclusivas</h3>
-        <p>Inspírate con nuestras recetas únicas y crea momentos inolvidables.</p>
-      </div>
-      <div class="feature-item">
-        <h3>Opiniones Reales</h3>
-        <p>Lee las opiniones de otros clientes sobre nuestros productos.</p>
-      </div>
-    </section>
+  <main class="hero">
+    <h2>Bienvenidos a Palmicafe Arandia</h2>
+    <p>Disfruta del mejor café con un toque artesanal y recetas exclusivas.</p>
+    <a href="products.html" class="cta-button">Explorar Productos</a>
   </main>
 
-  <footer class="main-footer">
-    <p>&copy; 2024 Cafe Arandia. Todos los derechos reservados.</p>
+  <footer>
+    <p>&copy; 2024 Palmicafe Arandia. Todos los derechos reservados.</p>
+    <p class="owners">Creado por: Ing. Christian Santacruz e Ing. David Inguilan</p>
   </footer>
+
+  <script>
+    // Cargar usuario desde el almacenamiento local
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (user) {
+      // Si el usuario está logueado, muestra su nombre y oculta los botones de login/registro
+      const navLinks = document.getElementById('nav-links');
+      document.getElementById('login-link').remove();
+      document.getElementById('register-link').remove();
+
+      const userElement = document.createElement('li');
+      userElement.textContent = `Bienvenido, ${user.nombre}`;
+      navLinks.appendChild(userElement);
+    }
+  </script>
 </body>
 </html>

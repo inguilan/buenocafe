@@ -17,7 +17,7 @@
   <div id="review-modal" class="modal hidden">
     <div class="modal-content">
       <h2>Añadir Reseña</h2>
-      <form id="review-form">
+      <form id="review-form" enctype="multipart/form-data">
         <label for="product-select">Selecciona un producto:</label>
         <select id="product-select" required></select>
 
@@ -26,6 +26,9 @@
 
         <label for="review-comment">Comentario:</label>
         <textarea id="review-comment" required></textarea>
+
+        <label for="review-image">Imagen:</label>
+        <input type="file" id="review-image" accept="image/*">
 
         <button type="submit">Guardar Reseña</button>
         <button type="button" class="close-modal">Cancelar</button>
@@ -41,46 +44,62 @@
     openModalBtn.addEventListener('click', () => modal.classList.remove('hidden'));
     closeModalBtns.forEach(btn => btn.addEventListener('click', () => modal.classList.add('hidden')));
 
-    async function loadProductsForSelect() {
-      const response = await fetch('/products');
-      const products = await response.json();
-      const productSelect = document.getElementById('product-select');
-      productSelect.innerHTML = products
-        .map((p) => `<option value="${p.id}">${p.nombre}</option>`)
-        .join('');
-    }
-
-    document.getElementById('review-form').addEventListener('submit', async (e) => {
+    const reviewForm = document.getElementById('review-form');
+    reviewForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const productId = document.getElementById('product-select').value;
-      const calificacion = document.getElementById('review-rating').value;
-      const comentario = document.getElementById('review-comment').value;
 
-      const response = await fetch('/reviews/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, calificacion, comentario }),
-      });
+      const formData = new FormData();
+      formData.append('productId', document.getElementById('product-select').value);
+      formData.append('calificacion', document.getElementById('review-rating').value);
+      formData.append('comentario', document.getElementById('review-comment').value);
+      formData.append('imagen', document.getElementById('review-image').files[0]);
 
-      const result = await response.json();
-      alert(result.message || 'Reseña añadida');
-      modal.classList.add('hidden');
-      loadReviews();
+      try {
+        const response = await fetch('http://localhost:8000/reviews/create', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+        alert(result.message || 'Reseña añadida');
+        modal.classList.add('hidden');
+        loadReviews();
+      } catch (error) {
+        console.error('Error al añadir reseña:', error);
+        alert('Error al añadir reseña. Revisa la consola.');
+      }
     });
 
+    async function loadProductsForSelect() {
+      try {
+        const response = await fetch('http://localhost:8000/products');
+        const products = await response.json();
+
+        const productSelect = document.getElementById('product-select');
+        productSelect.innerHTML = products.map(product => `
+          <option value="${product.id}">${product.nombre}</option>`).join('');
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+        alert('Error al cargar productos. Revisa la consola.');
+      }
+    }
+
     async function loadReviews() {
-      const response = await fetch('/reviews');
-      const reviews = await response.json();
-      const reviewList = document.getElementById('review-list');
-      reviewList.innerHTML = reviews
-        .map(
-          (r) =>
-            `<li>
-              Producto: ${r.productoNombre || 'Desconocido'}<br>
-              ${r.calificacion} estrellas - ${r.comentario}
-            </li>`
-        )
-        .join('');
+      try {
+        const response = await fetch('http://localhost:8000/reviews');
+        const reviews = await response.json();
+
+        const reviewList = document.getElementById('review-list');
+        reviewList.innerHTML = reviews.map(review => `
+          <li>
+            <img src="${review.imagen}" alt="Review de ${review.productoNombre}" width="100">
+            <strong>${review.calificacion} estrellas</strong>: ${review.comentario}<br>
+            <em>Por: ${review.user.nombre}</em>
+          </li>`).join('');
+      } catch (error) {
+        console.error('Error al cargar reseñas:', error);
+        alert('Error al cargar reseñas. Revisa la consola.');
+      }
     }
 
     loadProductsForSelect();

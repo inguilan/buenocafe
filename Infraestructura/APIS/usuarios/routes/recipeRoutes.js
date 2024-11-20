@@ -1,20 +1,11 @@
-/**
- * Christian Santacruz 
- * 
- * David Inguilan
- * 
- * Cafe Arandia 2.0
- * 
- * Rutas Para Recetas
- */
 const express = require('express');
-const { createRecipe, updateRecipe, deleteRecipe, getRecipes } = require('../controllers/recipeController');
-const router = express.Router();
+const multer = require('multer');
+const { createRecipe, getRecipes } = require('../controllers/recipeController');
 
-router.post('/create', createRecipe);
-router.put('/:id', updateRecipe);      
-router.delete('/:id', deleteRecipe);   
-router.get('/', getRecipes);          
+const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
+
+router.post('/create', upload.single('imagen'), createRecipe);
+router.get('/', getRecipes);
 
 module.exports = router;
-

@@ -1,4 +1,3 @@
-
 {
   "name": "cafe-arandia-2.0",
   "version": "1.0.0",
@@ -13,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "cafe-arandia-2.0": "file:",
     "express": "^4.21.1",
     "proyecto-arandia": "file:"
   },

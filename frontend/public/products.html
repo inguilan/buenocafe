@@ -17,7 +17,7 @@
   <div id="product-modal" class="modal hidden">
     <div class="modal-content">
       <h2>Añadir Producto</h2>
-      <form id="product-form">
+      <form id="product-form" enctype="multipart/form-data">
         <label for="product-name">Nombre del Producto:</label>
         <input type="text" id="product-name" required>
 
@@ -26,6 +26,9 @@
 
         <label for="product-description">Descripción:</label>
         <textarea id="product-description" required></textarea>
+
+        <label for="product-image">Imagen:</label>
+        <input type="file" id="product-image" accept="image/*">
 
         <button type="submit">Guardar Producto</button>
         <button type="button" class="close-modal">Cancelar</button>
@@ -44,15 +47,17 @@
     const productForm = document.getElementById('product-form');
     productForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = document.getElementById('product-name').value;
-      const price = parseFloat(document.getElementById('product-price').value);
-      const description = document.getElementById('product-description').value;
+
+      const formData = new FormData();
+      formData.append('nombre', document.getElementById('product-name').value);
+      formData.append('precio', document.getElementById('product-price').value);
+      formData.append('descripcion', document.getElementById('product-description').value);
+      formData.append('imagen', document.getElementById('product-image').files[0]);
 
       try {
         const response = await fetch('http://localhost:8000/products/add', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nombre: name, precio: price, descripcion: description }),
+          body: formData,
         });
 
         const result = await response.json();
@@ -69,16 +74,15 @@
       try {
         const response = await fetch('http://localhost:8000/products');
         const products = await response.json();
+
         const productList = document.getElementById('product-list');
-        productList.innerHTML = products
-          .map(
-            (p) =>
-              `<li>
-                <strong>${p.nombre}</strong>: $${p.precio}
-                <p>${p.descripcion}</p>
-              </li>`
-          )
-          .join('');
+        productList.innerHTML = products.map(product => `
+          <li>
+            <img src="${product.imagen}" alt="${product.nombre}" width="100">
+            <strong>${product.nombre}</strong>: $${product.precio}<br>
+            <p>${product.descripcion}</p>
+            <p><em>Publicado por: ${product.user.nombre}</em></p>
+          </li>`).join('');
       } catch (error) {
         console.error('Error al cargar productos:', error);
         alert('Error al cargar productos. Revisa la consola.');
